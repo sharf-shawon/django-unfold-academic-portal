@@ -1,0 +1,30 @@
+volumes:
+  web_result_local_sqlite_data: {}
+  web_result_local_django_media: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: web_result_local_django
+    container_name: web_result_local_django
+    depends_on:
+      - mailpit
+    volumes:
+      - /app/.venv
+      - .:/app:z
+      - web_result_local_sqlite_data:/app/data
+      - web_result_local_django_media:/app/web_result/media
+    env_file:
+      - path: ./.envs/.local/.django
+        required: false
+    ports:
+      - '8000:8000'
+    command: /start
+
+  mailpit:
+    image: docker.io/axllent/mailpit:latest
+    container_name: web_result_local_mailpit
+    ports:
+      - "8025:8025"

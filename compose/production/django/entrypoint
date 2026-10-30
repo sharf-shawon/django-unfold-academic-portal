@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+mkdir -p /app/data /app/data/backups /app/web_result/media /app/backups
+
+>&2 echo 'SQLite data directory, media storage, and backup storage initialized'
+
+exec "$@"

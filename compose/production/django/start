@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# 1. Pre-migration online backup if an existing SQLite database is present
+if [ "${DJANGO_AUTO_BACKUP_ON_START:-True}" = "True" ] || [ "${DJANGO_AUTO_BACKUP_ON_START:-true}" = "true" ]; then
+    if [ -f "/app/data/db.sqlite3" ]; then
+        echo "Creating pre-deployment SQLite + media backup..."
+        python /app/manage.py backup_data || echo "Warning: pre-deployment backup skipped."
+    fi
+fi
+
+# 2. Apply database migrations and collect static files
+python /app/manage.py migrate --noinput
+python /app/manage.py collectstatic --noinput
+
+# 3. First-boot automatic legacy SQL & media seeding when database has no students yet
+if [ "${DJANGO_AUTO_IMPORT_LEGACY:-True}" = "True" ] || [ "${DJANGO_AUTO_IMPORT_LEGACY:-true}" = "true" ]; then
+    STUDENT_COUNT=$(python /app/manage.py shell -c "from web_result.results.models import Student; print(Student.objects.count())" 2>/dev/null || echo "0")
+    if [ "${STUDENT_COUNT}" = "0" ]; then
+        echo "Empty database detected on startup — importing legacy data, student images, and demo admin..."
+        if [ -f "/app/old/database/Result.sql" ]; then
+            python /app/manage.py import_legacy_data \
+                --sql-file /app/old/database/Result.sql \
+                --uploads-dir /app/old/public/uploads \
+                --seed-demo-user
+        else
+            python /app/manage.py import_legacy_data --seed-demo-user
+        fi
+    fi
+fi
+
+# 4. Optional periodic background backup daemon inside the container
+BACKUP_INTERVAL="${DJANGO_AUTO_BACKUP_INTERVAL:-86400}"
+if [ "${BACKUP_INTERVAL}" -gt 0 ] 2>/dev/null; then
+    (
+        while true; do
+            sleep "${BACKUP_INTERVAL}"
+            python /app/manage.py backup_data || true
+        done
+    ) &
+fi
+
+exec gunicorn config.wsgi --bind 0.0.0.0:5000 --chdir=/app

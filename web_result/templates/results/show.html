@@ -1,0 +1,58 @@
+{% extends "results/base_guest.html" %}
+
+{% load i18n %}
+
+{% block content %}
+  <section class="bg-[#071e34] font-['Montserrat'] font-medium items-center justify-center">
+    <div class="mt-3">
+      {% if student.image %}
+        <figure class="max-w-lg">
+          <img class="h-auto max-w-full rounded-lg"
+               src="{{ student.image_url }}"
+               alt="student image" />
+        </figure>
+      {% endif %}
+      <span class="text-xl tracking-wide text-black dark:text-white">Name: {{ student.name }}</span>
+      <p>
+        <span class="text-black dark:text-white">Student ID: {{ student.student_id }}</span>
+        <br />
+        <span class="text-black dark:text-white">Department: {{ student.department }}</span>
+        <br />
+        <span class="text-black dark:text-white">Session: {{ student.session }}</span>
+        <br />
+        <span class="text-black dark:text-white">Date of Birth: {{ student.date_of_birth|date:"Y-m-d" }}</span>
+        <br />
+        <span class="text-black dark:text-white">CGPA: {{ student.cgpa }}</span>
+        <br />
+        <span class="text-black dark:text-white">Date of Issue: {{ student.date_of_issue|date:"Y-m-d" }}</span>
+      </p>
+    </div>
+    {% if results %}
+      <div class="mt-3">
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+          <table class="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
+            <thead class="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                <th scope="col" class="px-6 py-3">Course</th>
+                <th scope="col" class="px-6 py-3">Semester</th>
+                <th scope="col" class="px-6 py-3">GPA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in results %}
+                <tr class="border-b odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 dark:border-gray-700">
+                  <td scope="row"
+                      class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ item.course.code }}
+                  </td>
+                  <td class="px-6 py-4">{{ item.course.semester.name }}</td>
+                  <td class="px-6 py-4">{{ item.gpa }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+{% endblock content %}

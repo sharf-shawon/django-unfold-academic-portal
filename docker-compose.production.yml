@@ -1,0 +1,43 @@
+volumes:
+  sqlite-data: {}
+  media-data: {}
+  backups-data: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    restart: unless-stopped
+    expose:
+      - "5000"
+    volumes:
+      - sqlite-data:/app/data
+      - media-data:/app/web_result/media
+      - backups-data:/app/backups
+    env_file:
+      - path: ./.envs/.production/.django
+        required: false
+    environment:
+      - SERVICE_FQDN_DJANGO_5000
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-config.settings.production}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-${SERVICE_BASE64_64_DJANGO}}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-}
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-}
+      - DJANGO_ADMIN_URL=${DJANGO_ADMIN_URL:-admin/}
+      - DJANGO_ADMIN_EMAIL=${DJANGO_ADMIN_EMAIL:-demo@shawon.me}
+      - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD:-demo1234}
+      - DJANGO_SECURE_SSL_REDIRECT=${DJANGO_SECURE_SSL_REDIRECT:-False}
+      - DJANGO_SERVE_MEDIA=${DJANGO_SERVE_MEDIA:-True}
+      - DJANGO_AUTO_IMPORT_LEGACY=${DJANGO_AUTO_IMPORT_LEGACY:-True}
+      - DJANGO_AUTO_BACKUP_ON_START=${DJANGO_AUTO_BACKUP_ON_START:-True}
+      - DJANGO_AUTO_BACKUP_INTERVAL=${DJANGO_AUTO_BACKUP_INTERVAL:-86400}
+      - DJANGO_BACKUP_RETENTION_COUNT=${DJANGO_BACKUP_RETENTION_COUNT:-7}
+      - SERVICE_PASSWORD_ADMIN=${SERVICE_PASSWORD_ADMIN}
+    command: /start
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:5000/healthz/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
