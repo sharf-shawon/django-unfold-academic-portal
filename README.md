@@ -35,11 +35,6 @@
 >
 > Originally built as a **Laravel 11 + MySQL + Blade** application (preserved in [`./old`](./old) for side-by-side comparison), the entire full-stack application, database migration pipeline, legacy media migrator, online backup engine, and Coolify PaaS infrastructure were reverse-engineered, architected, implemented, and verified with **37 automated `pytest` tests** in **just 2 prompts** using **Spec-Driven AI Engineering (`OpenSpec`)** and **real-time documentation grounding (`Context7` MCP)**.
 
-### Recommended GitHub Repository Metadata
-- **Repository Name:** `django-unfold-academic-portal`
-- **About Description:** `Production-ready Academic Result Verification System ported from Laravel 11 to Cookiecutter Django 6, Unfold Admin, WAL SQLite & Coolify Docker in 2 AI prompts.`
-- **Topics / Keywords:** `django` `django-unfold` `cookiecutter-django` `sqlite-wal` `laravel-to-django` `coolify` `docker-compose` `tailwindcss` `spec-driven-development` `openspec` `ai-assisted-development` `agentic-coding` `django-import-export` `academic-portal` `result-management-system` `python` `fullstack-portfolio`
-
 ---
 
 ## 🤖 The 2-Prompt AI Engineering Case Study
